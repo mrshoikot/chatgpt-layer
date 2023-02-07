@@ -1,0 +1,23 @@
+#input{
+    margin-bottom: 20px;
+    label{
+        display: block;
+        margin-bottom: 5px;
+        color: #fff;
+    }
+    input,
+    textarea{
+        display: block;
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #ddd;
+        color: #000;
+        font-size: 1.2rem;
+        outline: none;
+    }
+    textarea{
+        height: 300px;
+    }
+}

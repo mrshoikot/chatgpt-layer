@@ -1,0 +1,13 @@
+#prompt{
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-grow: 1;
+    display: flex;
+    &>*{
+        margin: 0 30px;
+        flex-grow: 1;
+    }
+    p{
+        color: #fff;
+    }
+}
