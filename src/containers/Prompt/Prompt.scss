@@ -6,8 +6,36 @@
     &>*{
         margin: 0 30px;
         flex-grow: 1;
+        max-width: 45%;
     }
     p{
         color: #fff;
     }
+    .submitBtn{
+        margin-left: auto;
+        display: block;
+        width: 100%;
+        max-width: 130px;
+        padding: 5px 0;
+        background-color: #fff;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease-in-out;
+    }
 }
+
+@media screen and (max-width: 768px){
+    #prompt{
+        flex-direction: column;
+        max-width: initial;
+        &>*{
+            max-width: 100%;
+            margin: 0 3vw;
+        }
+    }
+}
+    

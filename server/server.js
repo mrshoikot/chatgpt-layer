@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite'
 import bodyParser from 'body-parser';
+import Stream from 'stream';
 
 sqlite3.verbose();
 dotenv.config();
@@ -48,7 +49,7 @@ app.use(function (req, res, next) {
 });
 
 app.post("/", async (req, res) => {
-    console.log(req.body)
+    const readableStream = new Stream.Readable()
     const email = req.body.email;
     const name = req.body.name;
 
@@ -61,8 +62,19 @@ app.post("/", async (req, res) => {
     }
 
     let payload = {
-        promptPrefix: `${req.body.instruction}\n\n${customerdata}`
+        promptPrefix: `${req.body.instruction}\n\n${customerdata}`,
     }
+
+    if (req.body.stream) {
+        payload = {
+            ...payload,
+            onProgress: (progress) => {
+                res.write(progress.text);
+            }
+        }
+    }
+
+    console.log(payload)
     if (conversationID) {
         payload = {
             ...payload,
@@ -79,7 +91,12 @@ app.post("/", async (req, res) => {
         }
     }
 
-    const result = await api.sendMessage(req.body.message, payload)
+    let result;
+    try {
+        result = await api.sendMessage(req.body.message, payload)
+    }catch(error){
+        return res.json({ message: error.statusText}, error.statusCode)
+    }
 
     if (!conversationID) {
         db.run("INSERT INTO conversations VALUES (?, ?)", [email, result.conversationId]);
@@ -87,7 +104,12 @@ app.post("/", async (req, res) => {
 
     db.run("INSERT INTO messages VALUES (?, ?, ?)", [result.conversationId, result.id, result.text]);
 
-    res.json({ message: result });
+    if(req.body.stream){
+        res.end();
+    } else {
+        res.json(result.text);
+    }
+
 });
 
 app.listen(PORT, () => {
