@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Chatbox from '../../components/Chatbox/Chatbox';
 import Input from '../../components/Input/Input';
 import './Prompt.scss';
 
@@ -30,9 +31,10 @@ class Prompt extends Component {
 			name: this.state.name,
 			instruction: this.state.instruction,
 			message: this.state.question,
-			stream: true,
+			stream: false,
 		};
 
+		this.push({ text: this.state.question, from: "user" });
 		this.setState({ loading: true, error: false });
 		const response = fetch('http://localhost:3001', {
 			body: JSON.stringify(data),
@@ -51,10 +53,17 @@ class Prompt extends Component {
 				}
 				chunk = new TextDecoder("utf-8").decode(value);
 				this.setState({ answer: chunk, loading: false });
+				this.push({ text: chunk.slice(1, chunk.length-1), from: "bot" });
+				console.log(chunk)
 			}
 		})
 
 	};
+
+
+	push(message){
+		this.setState({ history: [...this.state.history, message] });
+	}
 
 
 	render() {
@@ -66,11 +75,12 @@ class Prompt extends Component {
 					<Input name="instruction" onChange={this.changeHandler} value={this.state.instruction} label="Instruction" large />
 				</div>
 				<div className="right">
-					<Input name="question" onChange={this.changeHandler} value={this.state.question} label="Question *" />
+					<Chatbox messages={this.state.history} value={this.state.question} onChange={this.changeHandler} sendHandler={this.request} />
+					{/* <Input name="question" onChange={this.changeHandler} value={this.state.question} label="Question *" />
 					<button className='submitBtn' onClick={this.request}>Send</button>
 					<p dangerouslySetInnerHTML={{__html: this.state.answer.replace('\\n', '<br/>')}}></p>
 					<p>{this.state.loading ? "Loading..." : false}</p>
-					<p>{this.state.error ? "Error: " + JSON.stringify(this.state.error) : false}</p>
+					<p>{this.state.error ? "Error: " + JSON.stringify(this.state.error) : false}</p> */}
 				</div>
 			</div>
 		);
