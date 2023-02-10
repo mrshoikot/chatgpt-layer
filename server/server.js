@@ -58,7 +58,7 @@ app.post("/", async (req, res) => {
 
     let customerdata = "";
     if (req.body.name) {
-        customerdata = `Information about the customer:\nName: ${name}\nemail:${email}`;
+        customerdata = `Information about the customer:\nName: ${name}\nemail:${email}\n\n`;
     }
 
     let payload = {
@@ -74,7 +74,6 @@ app.post("/", async (req, res) => {
         }
     }
 
-    console.log(payload)
     if (conversationID) {
         payload = {
             ...payload,
@@ -92,10 +91,18 @@ app.post("/", async (req, res) => {
     }
 
     let result;
-    try {
-        result = await api.sendMessage(req.body.message, payload)
-    }catch(error){
-        return res.json({ message: error.statusText}, error.statusCode)
+    
+    while (true) {
+        try {
+            result = await api.sendMessage(req.body.message, payload)
+            break;
+        }catch(error){
+            console.log(error)
+            if (error.statusCode == 429) {
+                continue;
+            }
+            return res.json({ message: error.statusText}, error.statusCode)
+        }
     }
 
     if (!conversationID) {
